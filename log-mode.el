@@ -134,10 +134,10 @@ Find start and end of line and call `log-mode--find-prefix-length' to return
         (7 'log-mode-procid-face)))
     (" - -.*\\(?:ERRORS?\\|FA\\(?:IL\\(?:ED\\|URE\\)\\|TAL\\)\\).*$"
      . (0 'log-mode-error-face t)))
-  '("syslog" "/var/log")
-  '((setq-local wrap-prefix (log-mode--get-prefix))
-    (visual-line-mode 1)
-    (read-only-mode nil))
+  '("/var/log")
+  (list (lambda () (setq-local wrap-prefix (log-mode--get-prefix)))
+        (lambda () (visual-line-mode 1))
+        (lambda () (read-only-mode nil)))
   "Highlight logs, being aware of the RFC 5424 format.
 Highlight kernel messages and error.")
 
