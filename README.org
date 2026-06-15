@@ -1,4 +1,4 @@
-# log-mode #
+* log-mode
 
 This major mode colorizes RFC 5424 syslogs as created by, for example, `sysklogd`.
 Additionally, it sets the 'wrap-prefix' variable to keep the MSG part of the log
