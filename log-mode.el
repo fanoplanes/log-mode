@@ -31,6 +31,10 @@
 
 ;;; Code:
 
+;;; Add ourselves to the auto-mode-alist asap.
+;;;###autoload
+(add-to-list 'auto-mode-alist '("/var/log" . log-mode) t)
+
 (defvar log-mode-default-prefix-length
   42
   "Define prefix length if the prefix length detection mechanism fails.")
@@ -119,6 +123,7 @@ Find start and end of line and call `log-mode--find-prefix-length' to return
   "Face for displaying kernel messages in RFC 5424 log entries."
   :group 'log-mode-faces)
 
+;;;###autoload
 (define-generic-mode log-mode
   nil
   nil
@@ -133,7 +138,7 @@ Find start and end of line and call `log-mode--find-prefix-length' to return
         (7 'log-mode-procid-face)))
     (" - -.*\\(?:ERRORS?\\|FA\\(?:IL\\(?:ED\\|URE\\)\\|TAL\\)\\).*$"
      . (0 'log-mode-error-face t)))
-  '("/var/log")
+  nil
   nil
   "Highlight logs, being aware of the RFC 5424 format.
 Highlight kernel messages and error.")
