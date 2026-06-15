@@ -128,13 +128,13 @@ Find start and end of line and call `log-mode--find-prefix-length' to return
   nil
   nil
   '(("kernel - -.*$" . (0 'log-mode-kernel-face t))
-    ("^\\([0-9-]+\\)\\(T\\)\\([0-:]+\\)\\([.0-9]+\\)\\([.+0-:]+\\) \\([^[:blank:]]+\\) \\([^[:blank:]]+\\)"
-     . ((1 'log-mode-date-face append)
-        (2 'log-mode-T-face append)
-        (3 'log-mode-time-face append)
-        (4 'log-mode-microsecond-face append)
-        (5 'log-mode-timezone-face append)
-        (6 'log-mode-hostname-face append)
+    ("^\\([0-9-]+\\)\\(T\\)\\([0-:]+\\)\\([.0-9]+\\)\\([.+0-:]*\\) \\([^[:blank:]]+\\) \\([^[:blank:]]+\\)"
+     . ((1 'log-mode-date-face)
+        (2 'log-mode-T-face)
+        (3 'log-mode-time-face)
+        (4 'log-mode-microsecond-face)
+        (5 'log-mode-timezone-face)
+        (6 'log-mode-hostname-face)
         (7 'log-mode-procid-face)))
     (" - -.*\\(?:ERRORS?\\|FA\\(?:IL\\(?:ED\\|URE\\)\\|TAL\\)\\).*$"
      . (0 'log-mode-error-face t)))
