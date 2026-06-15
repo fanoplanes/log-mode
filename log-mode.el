@@ -119,7 +119,6 @@ Find start and end of line and call `log-mode--find-prefix-length' to return
   "Face for displaying kernel messages in RFC 5424 log entries."
   :group 'log-mode-faces)
 
-;;;###autoload
 (define-generic-mode log-mode
   nil
   nil
