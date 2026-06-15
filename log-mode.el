@@ -145,7 +145,7 @@ Highlight kernel messages and error.")
 
 (add-hook 'log-mode-hook (lambda () (setq-local wrap-prefix (log-mode--get-prefix))))
 (add-hook 'log-mode-hook (lambda () (visual-line-mode 1)))
-(add-hook 'log-mode-hool (lambda () (read-only-mode nil)))
+(add-hook 'log-mode-hook (lambda () (read-only-mode nil)))
 
 (provide 'log-mode)
 ;;; log-mode.el ends here
