@@ -33,32 +33,31 @@
 
 (defvar log-mode-default-prefix-length
   42
-  "Define default value for prefix length in case \
-the prefix length detection mechanism fails.")
+  "Define prefix length if the prefix length detection mechanism fails.")
 
 (defun log-mode--find-prefix-length (beg end)
-  "Find length of the message prefix. \
-Given BEG and END, search using regex and return `wrap-prefix'. \
+  "Find length of the message prefix.
+Given BEG and END, search using regex and return `wrap-prefix'.
 Restore position of point after the fact."
-  (setq position (point))
-  (goto-char beg)
-  (let ((found (or (re-search-forward
-		    "^[^[:blank:]]+ [^[:blank:]]+ "
-		    end)
-		   log-mode-default-prefix-length)))
-    (goto-char position)
-    (if found (make-string (- found beg) #x20) nil)))
+  (let ((position (point)))
+    (goto-char beg)
+    (let ((found (or (re-search-forward
+		      "^[^[:blank:]]+ [^[:blank:]]+ "
+		      end)
+		     log-mode-default-prefix-length)))
+      (goto-char position)
+      (if found (make-string (- found beg) #x20) nil))))
 
 (defun log-mode--get-prefix ()
-  "Upon opening a buffer, `point' is in a general position. \
-Find start and end of line and call `log-mode--find-prefix-length' to return \
+  "Upon opening a buffer, `point' is in a general position.
+Find start and end of line and call `log-mode--find-prefix-length' to return
 `wrap-prefix'. Restore point position."
-  (setq position (point))
-  (forward-line 0)
-  (setq beg (point))
-  (setq end (progn (search-forward "\n") (point)))
-  (goto-char position)
-  (log-mode--find-prefix-length beg end))
+  (let ((position (point)))
+    (forward-line 0)
+    (let* ((beg (point))
+           (end (progn (search-forward "\n") (point))))
+      (goto-char position)
+      (log-mode--find-prefix-length beg end))))
 
 (defgroup log-mode-faces nil
   "Faces for log-mode."
@@ -136,14 +135,11 @@ Find start and end of line and call `log-mode--find-prefix-length' to return \
     (" - -.*\\(?:ERRORS?\\|FA\\(?:IL\\(?:ED\\|URE\\)\\|TAL\\)\\).*$"
      . (0 'log-mode-error-face t)))
   '("syslog" "/var/log")
-  nil
-  "Highlight logs, being aware of the RFC 5424 format. \
+  '((setq-local wrap-prefix (log-mode--get-prefix))
+    (visual-line-mode 1)
+    (read-only-mode nil))
+  "Highlight logs, being aware of the RFC 5424 format.
 Highlight kernel messages and error.")
-
-(add-hook! log-mode
-  (setq-local wrap-prefix (log-mode--get-prefix))
-  (visual-line-mode 1)
-  (read-only-mode nil))
 
 (provide 'log-mode)
 ;;; log-mode.el ends here
