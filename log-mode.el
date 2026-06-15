@@ -50,7 +50,7 @@ Restore position of point after the fact."
 		      end)
 		     log-mode-default-prefix-length)))
       (goto-char position)
-      (if found (make-string (- found beg) #x20) nil))))
+      (make-string (- found beg) #x20))))
 
 (defun log-mode--get-prefix ()
   "Upon opening a buffer, `point' is in a general position.
@@ -145,7 +145,7 @@ Highlight kernel messages and error.")
 
 (add-hook 'log-mode-hook (lambda () (setq-local wrap-prefix (log-mode--get-prefix))))
 (add-hook 'log-mode-hook (lambda () (visual-line-mode 1)))
-(add-hook 'log-mode-hook (lambda () (read-only-mode nil)))
+(add-hook 'log-mode-hook (lambda () (read-only-mode t)))
 
 (provide 'log-mode)
 ;;; log-mode.el ends here
