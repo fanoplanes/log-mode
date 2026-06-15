@@ -135,11 +135,13 @@ Find start and end of line and call `log-mode--find-prefix-length' to return
     (" - -.*\\(?:ERRORS?\\|FA\\(?:IL\\(?:ED\\|URE\\)\\|TAL\\)\\).*$"
      . (0 'log-mode-error-face t)))
   '("/var/log")
-  (list (lambda () (setq-local wrap-prefix (log-mode--get-prefix)))
-        (lambda () (visual-line-mode 1))
-        (lambda () (read-only-mode nil)))
+  nil
   "Highlight logs, being aware of the RFC 5424 format.
 Highlight kernel messages and error.")
+
+(add-hook 'log-mode-hook (lambda () (setq-local wrap-prefix (log-mode--get-prefix))))
+(add-hook 'log-mode-hook (lambda () (visual-line-mode 1)))
+(add-hook 'log-mode-hool (lambda () (read-only-mode nil)))
 
 (provide 'log-mode)
 ;;; log-mode.el ends here
