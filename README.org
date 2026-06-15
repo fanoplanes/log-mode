@@ -1,0 +1,10 @@
+# log-mode #
+
+This major mode colorizes RFC 5424 syslogs as created by, for example, `sysklogd`.
+Additionally, it sets the 'wrap-prefix' variable to keep the MSG part of the log
+from overlapping the header part.
+
+It is very bare-bones, I mostly created this as a learning project to
+play around with emacs lisp and learn about emacs packaging.
+
+Please consider using a full-fledged mode like [logview by doublep](https://github.com/doublep/logview)
