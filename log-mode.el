@@ -46,7 +46,7 @@ Restore position of point after the fact."
   (let ((position (point)))
     (goto-char beg)
     (let ((found (or (re-search-forward
-		      "^[^[:blank:]]+ [^[:blank:]]+ "
+		      "^[^[:blank:]]+ [^[:blank:]]+ [^[:blank:]]+ "
 		      end)
 		     log-mode-default-prefix-length)))
       (goto-char position)
@@ -62,6 +62,43 @@ Find start and end of line and call `log-mode--find-prefix-length' to return
            (end (progn (search-forward "\n") (point))))
       (goto-char position)
       (log-mode--find-prefix-length beg end))))
+
+(defun log-mode-prefix-function (beg end)
+  "Indent the region between BEG and END with visual filling."
+  ;; Any change at the beginning of a line might change its wrap
+  ;; prefix, which affects the whole line.  So we need to "round-up"
+  ;; `end' to the nearest end of line.  We do the same with `beg'
+  ;; although it's probably not needed.
+  (goto-char end)
+  (unless (bolp) (forward-line 1))
+  (setq end (point))
+  (goto-char beg)
+  (forward-line 0)
+  (setq beg (point))
+  (while (< (point) end)
+    (let ((lbp (point)))
+      (put-text-property
+       (point) (progn (search-forward "\n" end 'move) (point))
+       'wrap-prefix
+       (let ((pfx (log-mode--find-prefix-length
+		   lbp (point))))
+	 ;; Remove any `wrap-prefix' property that might have been
+	 ;; added earlier.  Otherwise, we end up with a string
+	 ;; containing a `wrap-prefix' string containing a
+	 ;; `wrap-prefix' string ...
+	 (remove-text-properties
+	  0 (length pfx) '(wrap-prefix) pfx)
+         (let ((dp (get-text-property 0 'display pfx)))
+           (when (and dp (eq dp (get-text-property (1- lbp) 'display)))
+             ;; There's a `display' property which covers not just the
+             ;; prefix but also the previous newline.  So it's not
+             ;; just making the prefix more pretty and could interfere
+             ;; or even defeat our efforts (e.g. it comes from
+             ;; `adaptive-fill-mode').
+             (remove-text-properties
+	      0 (length pfx) '(display) pfx)))
+	 pfx))))
+  `(jit-lock-bounds ,beg . ,end))
 
 (defgroup log-mode-faces nil
   "Faces for log-mode."
@@ -127,8 +164,7 @@ Find start and end of line and call `log-mode--find-prefix-length' to return
 (define-generic-mode log-mode
   nil
   nil
-  '(("kernel - -.*$" . (0 'log-mode-kernel-face t))
-    ("^\\([0-9-]+\\)\\(T\\)\\([0-:]+\\)\\([.0-9]+\\)\\([.+0-:]*\\) \\([^[:blank:]]+\\) \\([^[:blank:]]+\\)"
+  '(("^\\([0-9-]+\\)\\(T\\)\\([0-:]+\\)\\([.0-9]+\\)\\([.+0-:]*\\) \\([^[:blank:]]+\\) \\([^[:blank:]]+\\)"
      . ((1 'log-mode-date-face)
         (2 'log-mode-T-face)
         (3 'log-mode-time-face)
@@ -136,6 +172,7 @@ Find start and end of line and call `log-mode--find-prefix-length' to return
         (5 'log-mode-timezone-face)
         (6 'log-mode-hostname-face)
         (7 'log-mode-procid-face)))
+    ("kernel - -.*$" 0 'log-mode-kernel-face t)
     (" - -.*\\(?:ERRORS?\\|FA\\(?:IL\\(?:ED\\|URE\\)\\|TAL\\)\\).*$"
      . (0 'log-mode-error-face t)))
   nil
@@ -143,7 +180,16 @@ Find start and end of line and call `log-mode--find-prefix-length' to return
   "Highlight logs, being aware of the RFC 5424 format.
 Highlight kernel messages and error.")
 
-(add-hook 'log-mode-hook (lambda () (setq-local wrap-prefix (log-mode--get-prefix))))
+(add-hook 'log-mode-hook (lambda ()
+			   (progn
+			     ;; HACK ATTACK!  We want to run after font-lock (so our
+			     ;; wrap-prefix includes the faces applied by font-lock), but
+			     ;; jit-lock-register doesn't accept an `append' argument, so
+			     ;; we add ourselves beforehand, to make sure we're at the end
+			     ;; of the hook (bug#15155).
+			     (add-hook 'jit-lock-functions
+				       #'log-mode-prefix-function 'append t)
+			     (jit-lock-register #'log-mode-prefix-function))))
 (add-hook 'log-mode-hook (lambda () (visual-line-mode 1)))
 (add-hook 'log-mode-hook (lambda () (read-only-mode t)))
 
